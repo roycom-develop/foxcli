@@ -1,22 +1,30 @@
 package com.roycom;
 
+import java.util.ArrayList;
+
+import com.roycom.linux.Common;
 import com.roycom.linux.storage.Disk;
 import com.roycom.linux.storage.instrument.ChipModel;
 
 public class Main {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		//Controller con = new Controller(ChipModel.SAS3008);
-		Disk disk = new Disk(ChipModel.SAS3008, "sdg");
-		String json = null;
+		String json = "";
+		ArrayList<String> tools = new ArrayList<String>();
+		tools.add("smartctl");
+		tools.add("lsscsi");
 		try{
+			boolean env = Common.checkEnvironmentTools(tools);
+			if(!env){
+				return;
+			}
+			Disk disk = new Disk(ChipModel.SAS3008, "sdg");	
 			disk.fillAttr();
 			json = disk.smartToJson();
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally {
-			System.out.print(json);
+			System.out.println(json);
 		}
 		
 	}

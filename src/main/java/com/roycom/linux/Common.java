@@ -12,6 +12,33 @@ import java.util.regex.Pattern;
 
 public class Common {
 	/**
+	 * 检测linux系统中用到的工具是否齐全
+	 * @throws InterruptedException 
+	 * @throws IOException 
+	 * @throws SecurityException 
+	 * @throws NullPointerException 
+	 */
+	public static boolean checkEnvironmentTools(ArrayList<String> tools) throws NullPointerException, SecurityException, IOException, InterruptedException{
+		String cmd = "which";
+		boolean flag = true;
+		String result = "Tools status:\n";
+		for(String tool: tools){
+			cmd = String.format("%s %s", cmd, tool);
+		}
+		String[] re = Common.exeShell(cmd).trim().split("\n");
+		for(String i: re){
+			if(Common.matches(i, " no ")){
+				flag = false;
+				result = String.format("%s\n%s",result, i);
+			}
+		}
+		if(!flag){
+			System.out.print(result);
+		}
+		return flag;
+	}
+	
+	/**
 	 * searchRegexString static函数，在目标字符串中按行搜索子串后，分割取其中一列。
 	 * @param srcStr 待查找字符串
 	 * @param regexStr 正则字符串

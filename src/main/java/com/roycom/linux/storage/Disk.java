@@ -1,6 +1,7 @@
 package com.roycom.linux.storage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -51,6 +52,15 @@ public class Disk implements Dev {
 		}
 		setFromChip(from_chip);
 		smart_map = new HashMap<String, Map<String,String>>();
+	}
+	
+	/**
+	 * 获取PassThough类型的所有磁盘
+	 * @return ArrayList类型
+	 */
+	public static ArrayList<String> listPassThoughDisks(){
+		ArrayList<String> disks = new ArrayList<String>();
+		return disks;
 	}
 	
 	/**
