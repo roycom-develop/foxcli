@@ -3,16 +3,9 @@ package com.roycom.linux.storage;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.roycom.linux.storage.instrument.ChipModel;
 import com.roycom.linux.storage.instrument.Dev;
 
-/**
- * HBA–æ∆¨¿‡–Õ
- * @author Stevy
- *
- */
-enum ChipModel {
-	SAS3008, SAS2008, SAS2308, LSI2108, LSI3108
-}
 
 public class Controller implements Dev {
 	private ChipModel chipModel;

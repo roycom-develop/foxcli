@@ -19,16 +19,38 @@ public class Common {
 	 * @param column 将使用正则表达式查询后的字符串分割后的第column列赋值给一个ArrayList的对象
 	 * @return 返回查询并分割后第column列的字符串数组。
 	 */
-	public static ArrayList<String> searchRegexString(String srcStr, String regexStr, String splitString, int column){
+	public static ArrayList<String> searchRegexString(String srcStr, String regexStr, String splitString, int column) {
 		ArrayList<String> result = new ArrayList<String>();
-		Pattern pattern = Pattern.compile(regexStr, Pattern.MULTILINE);
-		Matcher matcher = pattern.matcher(srcStr);
-		while(matcher.find()){
-			String tmp = matcher.group().trim();
-			String[] listA = tmp.split(String.format("%s*", splitString));
-			result.add(listA[column].trim());
+		try{
+			Pattern pattern = Pattern.compile(regexStr, Pattern.MULTILINE);
+			Matcher matcher = pattern.matcher(srcStr);
+			while(matcher.find()){
+				String tmp = matcher.group().trim();
+				String[] listA = tmp.split(String.format("%s*", splitString));
+				result.add(listA[column].trim());
+			}
+		}catch(Exception e){
+			throw e;
 		}
 		return result;
+	}
+	
+	public static boolean matches(String srcStr, String regStr){
+		try{
+			Pattern pattern = Pattern.compile(regStr, Pattern.MULTILINE);
+			Matcher matcher = pattern.matcher(srcStr);
+			if(matcher.find()){
+				return true;
+			}else{
+				return false;
+			}
+		}catch(Exception e){
+			throw e;
+		}
+	}
+	
+	public static void writeFile(StringBuilder str) {
+		
 	}
 	
 	/**
@@ -51,7 +73,7 @@ public class Common {
 		}finally {
 			in.close();
 		}
-		buf = new String(data);
+		buf = new String(data).trim();
 		return buf;
 	}
 	

@@ -32,10 +32,12 @@ public class Phy {
 	
 	public static Map<String, Map<String, String>>getAllPhysAttr() throws Exception{
 		Map<String, Map<String, String>> physAttrMap = new HashMap<String, Map<String,String>>();
-		Map<String, String> phyAttrMap = new HashMap<String, String>();
+		Phy p = null;
+		Map<String, String> phyAttrMap = null;
 		ArrayList<String> phyNames = Phy.phyList();
 		for(String phy: phyNames){
-			Phy p = new Phy(phy);
+			p = new Phy(phy);
+			phyAttrMap = new HashMap<String, String>();
 			p.fillAttr();
 			phyAttrMap.put("sasAddress", p.sasAddress);
 			phyAttrMap.put("invalid_dword_count", p.invalidDwordCount);
@@ -51,7 +53,7 @@ public class Phy {
 	public static String getAllPhysAttrJson() throws Exception{
 		Map<String, Map<String, String>> map = Phy.getAllPhysAttr();
 		ObjectMapper mapper = new ObjectMapper();
-		String  jsonStr = mapper.writeValueAsString(map);
+		String  jsonStr = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(map);
 		return jsonStr;
 	}
 	
@@ -73,19 +75,19 @@ public class Phy {
 	}
 	
 	public void fillInvalidDwordCount() throws Exception{
-		phyIdentifier = Common.readFileByChar(Common.pathJoin(rootPath, "invalid_dword_count"));
+		invalidDwordCount = Common.readFileByChar(Common.pathJoin(rootPath, "invalid_dword_count"));
 	}
 	
 	public void fillLossOfDwordSyncCount() throws Exception{
-		phyIdentifier = Common.readFileByChar(Common.pathJoin(rootPath, "loss_of_dword_sync_count"));
+		lossOfDwordSyncCount = Common.readFileByChar(Common.pathJoin(rootPath, "loss_of_dword_sync_count"));
 	}
 	
 	public void fillPhyResetProblemCount() throws Exception{
-		phyIdentifier = Common.readFileByChar(Common.pathJoin(rootPath, "phy_reset_problem_count"));
+		phyResetProblemCount = Common.readFileByChar(Common.pathJoin(rootPath, "phy_reset_problem_count"));
 	}
 	
 	public void fillRunningDisparityErrorCount() throws Exception{
-		phyIdentifier = Common.readFileByChar(Common.pathJoin(rootPath, "running_disparity_error_count"));
+		runningDisparityErrorCount = Common.readFileByChar(Common.pathJoin(rootPath, "running_disparity_error_count"));
 	}
 	
 	public String getPhyName() {

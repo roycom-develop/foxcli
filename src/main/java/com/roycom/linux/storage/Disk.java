@@ -9,8 +9,10 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.roycom.linux.Common;
+import com.roycom.linux.storage.instrument.ChipModel;
 import com.roycom.linux.storage.instrument.Dev;
 import com.roycom.linux.storage.instrument.InputException;
+import com.roycom.linux.storage.instrument.RegexException;
 
 /**
  * 磁盘接口类型
@@ -47,6 +49,7 @@ public class Disk implements Dev {
 			devName = dev_name;
 		}
 		setFromChip(from_chip);
+		smart_map = new HashMap<String, Map<String,String>>();
 	}
 	
 	/**
@@ -55,8 +58,7 @@ public class Disk implements Dev {
 	 * @throws InterruptedException
 	 */
 	@Override
-	public void fillAttr() throws IOException, InterruptedException {
-		// TODO Auto-generated method stub
+	public void fillAttr() throws IOException, InterruptedException, RegexException {
 		Pattern pattern = null;
 		Matcher matcher = null;
 		String smartCmd = String.format("%s /dev/%s",smartStr, devName);
@@ -64,26 +66,27 @@ public class Disk implements Dev {
 		sn = Common.searchRegexString(smartAll, ".*Serial.*", " ", 2).get(0);
 		fw = Common.searchRegexString(smartAll, "(^Firmware Version.*)|(^Revision.*)", ":", 1).get(0);
 		model = Common.searchRegexString(smartAll, "(^Product.*)|(.*Model.*)", ":", 1).get(0);
-		boolean isSata = smartAll.matches("(\n|.)*SATA(.|\n)*");
-		boolean isSas = smartAll.matches("(\n|.)*SAS(.|\n)*");
-		boolean isNvme = smartAll.matches("(\n|.)*NVM(.|\n)*");
+		boolean isSata = Common.matches(smartAll, "SATA");
+		boolean isSas = Common.matches(smartAll, "SAS");
+		boolean isNvme = Common.matches(smartAll, "NVM");;
 		if(isSata){
 			interfaces = Interface.SATA;
 			pattern = Pattern.compile(".*  0x.*-*", Pattern.MULTILINE);
 			matcher = pattern.matcher(smartAll);
+			Map<String, String> m1 = null;
 			while(matcher.find()){
-				Map<String, String> m1 = new HashMap<String, String>();
+				m1 = new HashMap<String, String>();
 				String line_smart = matcher.group().trim();
-				String[] arr = line_smart.split(" *");
-				m1.put("FLAG", arr[2]);
-				m1.put("VALUE", arr[3]);
-				m1.put("WORST", arr[4]);
-				m1.put("THRESH", arr[5]);
-				m1.put("TYPE", arr[6]);
-				m1.put("UPDATED", arr[7]);
-				m1.put("WHEN_FAILED", arr[8]);
-				m1.put("RAW_VALUE", arr[9]);
-				smart_map.put(arr[1], m1);
+				String[] arr = line_smart.split("\\s+");
+				m1.put("FLAG", arr[2].trim());
+				m1.put("VALUE", arr[3].trim());
+				m1.put("WORST", arr[4].trim());
+				m1.put("THRESH", arr[5].trim());
+				m1.put("TYPE", arr[6].trim());
+				m1.put("UPDATED", arr[7].trim());
+				m1.put("WHEN_FAILED", arr[8].trim());
+				m1.put("RAW_VALUE", arr[9].trim());
+				smart_map.put(arr[1].trim(), m1);
 			}
 		}
 		if(isSas) {
@@ -94,14 +97,14 @@ public class Disk implements Dev {
 				Map<String, String> m1 = new HashMap<String, String>();
 				String line_smart = matcher.group().trim();
 				String[] arr = line_smart.split(" *");
-				m1.put("ECC_fast", arr[1]);
-				m1.put("ECC_delayed", arr[2]);
-				m1.put("rerw", arr[3]);
-				m1.put("errors_corrected", arr[4]);
-				m1.put("algorithm_invocations", arr[5]);
-				m1.put("processed_10^9_bytes", arr[6]);
-				m1.put("uncorrected_error", arr[7]);
-				smart_map.put(arr[0], m1);
+				m1.put("ECC_fast", arr[1].trim());
+				m1.put("ECC_delayed", arr[2].trim());
+				m1.put("rerw", arr[3].trim());
+				m1.put("errors_corrected", arr[4].trim());
+				m1.put("algorithm_invocations", arr[5].trim());
+				m1.put("processed_10^9_bytes", arr[6].trim());
+				m1.put("uncorrected_error", arr[7].trim());
+				smart_map.put(arr[0].trim(), m1);
 			}
 		}
 		if(isNvme)
@@ -116,7 +119,7 @@ public class Disk implements Dev {
 	public String smartToJson() throws JsonProcessingException{
 		String sataSmartJsonStr = null;
 		ObjectMapper mapper = new ObjectMapper();
-		sataSmartJsonStr = mapper.writeValueAsString(smart_map);
+		sataSmartJsonStr = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(smart_map);
 		return sataSmartJsonStr;
 	}
 	
