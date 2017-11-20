@@ -18,34 +18,34 @@ public class Common {
 	 * @param splitString 分割字符子串，一般是使用" *"来分割多个空格
 	 * @param column 将使用正则表达式查询后的字符串分割后的第column列赋值给一个ArrayList的对象
 	 * @return 返回查询并分割后第column列的字符串数组。
+	 * @throws IllegalArgumentException 正则表达式字符串不合法
 	 */
-	public static ArrayList<String> searchRegexString(String srcStr, String regexStr, String splitString, int column) {
+	public static ArrayList<String> searchRegexString(String srcStr, String regexStr, String splitString, int column) throws IllegalArgumentException {
 		ArrayList<String> result = new ArrayList<String>();
-		try{
-			Pattern pattern = Pattern.compile(regexStr, Pattern.MULTILINE);
-			Matcher matcher = pattern.matcher(srcStr);
-			while(matcher.find()){
-				String tmp = matcher.group().trim();
-				String[] listA = tmp.split(String.format("%s*", splitString));
-				result.add(listA[column].trim());
-			}
-		}catch(Exception e){
-			throw e;
+		Pattern pattern = Pattern.compile(regexStr, Pattern.MULTILINE);
+		Matcher matcher = pattern.matcher(srcStr);
+		while(matcher.find()){
+			String tmp = matcher.group().trim();
+			String[] listA = tmp.split(String.format("%s*", splitString));
+			result.add(listA[column].trim());
 		}
 		return result;
 	}
 	
-	public static boolean matches(String srcStr, String regStr){
-		try{
-			Pattern pattern = Pattern.compile(regStr, Pattern.MULTILINE);
-			Matcher matcher = pattern.matcher(srcStr);
-			if(matcher.find()){
-				return true;
-			}else{
-				return false;
-			}
-		}catch(Exception e){
-			throw e;
+	/**
+	 * 静态函数，字符串secStr是否包含正则表达式regStr所涵盖的字串
+	 * @param srcStr 源字符串
+	 * @param regStr 正则字符串，字串
+	 * @return 返回boolean型
+	 * @throws IllegalArgumentException 正则表达式字符串不合法
+	 */
+	public static boolean matches(String srcStr, String regStr) throws IllegalArgumentException{
+		Pattern pattern = Pattern.compile(regStr, Pattern.MULTILINE);
+		Matcher matcher = pattern.matcher(srcStr);
+		if(matcher.find()){
+			return true;
+		}else{
+			return false;
 		}
 	}
 	
@@ -57,9 +57,11 @@ public class Common {
 	 * static函数，读文件
 	 * @param path 文件路径
 	 * @return 返回字符串结果
-	 * @throws Exception
+	 * @throws IOException 出现IO error或者FileInputStream中文件不存在
+	 * @throws NullPointerException File构造函数的参数path为null，出错
+	 * @throws SecurityException 系统存在安全限制，没有读取权限
 	 */
-	public static String readFileByChar(String path) throws Exception{
+	public static String readFileByChar(String path) throws NullPointerException, IOException, SecurityException{
 		String buf = null;
 		byte[] data = null;
 		File file = new File(path);
@@ -68,7 +70,7 @@ public class Common {
 		in = new FileInputStream(file);
 		data = new byte[1024];
 		in.read(data);
-		}catch(Exception e){
+		}catch(IOException|SecurityException e){
 			throw e;
 		}finally {
 			in.close();
@@ -81,8 +83,9 @@ public class Common {
 	 * static函数，遍历根文件夹所有文件
 	 * @param path 文件夹路径
 	 * @return 返回ArrayList类型根文件夹内任所有文件
+	 * @throws SecurityException listFiles函数没有读取权限，存在安全限制
 	 */
-	public static ArrayList<String> listDirAllFiles(String path) throws Exception{
+	public static ArrayList<String> listDirAllFiles(String path) throws SecurityException{
 		ArrayList<String> fileList = new ArrayList<String>();
 		File[] files = new File(path).listFiles();
 		for(File f: files){
@@ -95,9 +98,9 @@ public class Common {
 	 * static函数，遍历根文件夹除目录外的所有文件
 	 * @param path 文件夹路径
 	 * @return 返回ArrayList类型根文件夹内任所有非目录文件
-	 * @throws Exception
+	 * @throws SecurityException listFiles或isDirectory函数没有读取权限，存在安全限制
 	 */
-	public static ArrayList<String> listDirNomalFiles(String path) throws Exception{
+	public static ArrayList<String> listDirNomalFiles(String path) throws SecurityException{
 		ArrayList<String> fileList = new ArrayList<String>();
 		File[] files = new File(path).listFiles();
 		for(File f: files){
@@ -115,10 +118,12 @@ public class Common {
 	 * exeShell static函数，运行shell命令，返回执行结果
 	 * @param cmd shell命名字符串
 	 * @return 返回执行结果
-	 * @throws IOException 可能出现的IO异常
+	 * @throws IOException 可能出现的IO error
 	 * @throws InterruptedException 异常
+	 * @throws NullPointerException if an element of the command list is null
+	 * @throws SecurityException 权限异常
 	 */
-	public static String exeShell(String cmd) throws IOException, InterruptedException {
+	public static String exeShell(String cmd) throws NullPointerException, SecurityException, IOException, InterruptedException {
 		ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd);
 		builder.redirectErrorStream(true);
 		Process p = builder.start();

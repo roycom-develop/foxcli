@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +13,6 @@ import com.roycom.linux.Common;
 import com.roycom.linux.storage.instrument.ChipModel;
 import com.roycom.linux.storage.instrument.Dev;
 import com.roycom.linux.storage.instrument.InputException;
-import com.roycom.linux.storage.instrument.RegexException;
 
 /**
  * 磁盘接口类型
@@ -38,8 +38,9 @@ public class Disk implements Dev {
 	 * Disk Disk类的构造函数
 	 * @param from_chip 连接名字为dev_name的控制芯片型号
 	 * @param dev_name 磁盘名称，例如sda
+	 * @throws PatternSyntaxException 正则表达式错误
 	 */
-	public Disk(ChipModel from_chip, String dev_name){
+	public Disk(ChipModel from_chip, String dev_name) throws PatternSyntaxException{
 		model = fw = sn = "";
 		smartStr = "smartctl -a";
 		if(!dev_name.matches("sd[a-z]*")){
@@ -54,11 +55,13 @@ public class Disk implements Dev {
 	
 	/**
 	 * fillAttr 填充磁盘的所有属性
+	 * @throws SecurityException 
+	 * @throws NullPointerException 
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
 	@Override
-	public void fillAttr() throws IOException, InterruptedException, RegexException {
+	public void fillAttr() throws NullPointerException, SecurityException, IOException, InterruptedException {
 		Pattern pattern = null;
 		Matcher matcher = null;
 		String smartCmd = String.format("%s /dev/%s",smartStr, devName);
@@ -116,7 +119,7 @@ public class Disk implements Dev {
 	 * @return 返回json格式的smart信息字符串
 	 * @throws JsonProcessingException
 	 */
-	public String smartToJson() throws JsonProcessingException{
+	public String smartToJson() throws JsonProcessingException {
 		String sataSmartJsonStr = null;
 		ObjectMapper mapper = new ObjectMapper();
 		sataSmartJsonStr = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(smart_map);

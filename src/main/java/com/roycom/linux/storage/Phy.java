@@ -19,17 +19,31 @@ public class Phy {
 	
 	private String rootPath;
 	
+	/**
+	 * 构造函数
+	 * @param phy_name phy名称，例如phy-10:1:10
+	 */
 	public Phy(String phy_name){
 		setPhyName(phy_name);
 		setRootPath(Common.pathJoin("/sys/class/sas_phy", phy_name));
 	}
 	
+	/**
+	 * 静态函数
+	 * @return 返回ArrayList类型的phy名称的列表
+	 * @throws Exception
+	 */
 	public static ArrayList<String> phyList() throws Exception{
 		ArrayList<String> phys = new ArrayList<String>();
 		phys = Common.listDirAllFiles("/sys/class/sas_phy");
 		return phys;
 	}
 	
+	/**
+	 * 静态函数
+	 * @return 返回双层Map的phy所有属性，便于转化成json
+	 * @throws Exception
+	 */
 	public static Map<String, Map<String, String>>getAllPhysAttr() throws Exception{
 		Map<String, Map<String, String>> physAttrMap = new HashMap<String, Map<String,String>>();
 		Phy p = null;
