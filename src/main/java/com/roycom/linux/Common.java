@@ -53,7 +53,7 @@ public class Common {
 		Matcher matcher = pattern.matcher(srcStr);
 		while(matcher.find()){
 			String tmp = matcher.group().trim();
-			String[] listA = tmp.split(String.format("%s*", splitString));
+			String[] listA = tmp.split(String.format("%s+", splitString));
 			result.add(listA[column].trim());
 		}
 		return result;

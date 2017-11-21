@@ -3,6 +3,7 @@ package com.roycom.linux.storage;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.roycom.linux.Common;
 import com.roycom.linux.storage.instrument.ChipModel;
 import com.roycom.linux.storage.instrument.Dev;
 
@@ -15,10 +16,37 @@ public class Controller implements Dev {
 	private boolean hasBBU;
 	private ArrayList<Disk> disks;
 	private int cacheSize;
+	private int index;
 	
-	public Controller(ChipModel chipModel){
-		this.setChipModel(chipModel);
-		this.setVendor(vendor);
+	public Controller(ChipModel chipModel, int index){
+		setChipModel(chipModel);
+		setIndex(index);
+	}
+	
+	public static void scanControllers(){
+		String sas3Str = null;
+		String sas2Str = null;
+		String raidStr = null;
+		try {
+			sas3Str = Common.exeShell("sas3ircu list");
+			sas2Str = Common.exeShell("sas2ircu list");
+			raidStr = Common.exeShell("storcli show");
+			ArrayList<String> sas3ChipModeArr = Common.searchRegexString(sas3Str, ".*SAS[0-9]{4}.*", " ", 1);
+			ArrayList<String> sas3ChipIndexArr = Common.searchRegexString(sas3Str, ".*SAS[0-9]{4}.*", " ", 0);
+			ArrayList<Controller> conArr = new ArrayList<Controller>();
+		} catch (NullPointerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -130,5 +158,13 @@ public class Controller implements Dev {
 
 	public void setCacheSize(int cacheSize) {
 		this.cacheSize = cacheSize;
+	}
+
+	public int getIndex() {
+		return index;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
 	}
 }
